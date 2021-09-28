@@ -1,0 +1,143 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>ArcGIS API for JavaScript Tutorials: Display a map</title>
+
+    <style>
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.21/"></script>
+
+    <script>
+        require(["esri/config", "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/FeatureLayer",
+            "esri/widgets/LayerList",
+            "esri/widgets/DistanceMeasurement2D",
+            "esri/widgets/Home",
+        "esri/widgets/Search"],
+            function (esriConfig, Map, MapView, FeatureLayer, LayerList, DistanceMeasurement2D, Home, Search) {
+
+                esriConfig.apiKey = "AAPKee7d3b3a70e7429f90f84b2efbbc0a81RNt5FlFCx1HRlnNxgtJ4dFHj3vRjuazaIkhiDj09XbnSPZqp1x8PowVANc4w3t6p";
+
+                const map = new Map({
+                    basemap: "osm" // Basemap layer service
+                });
+
+                const view = new MapView({
+                    map: map,
+                    center: [40, 23], // Longitude, latitude
+                    zoom: 5, // Zoom level
+                    container: "viewDiv" // Div element
+                });
+
+                var templateReg = {
+                    title: "Region Name: {PROV_NAME1} <br>" +"Shape Length: {Shape_Leng}<br>" +
+                        "Shape Area: {Shape_Area}"
+                   
+                }
+                const featureLayerReg = new FeatureLayer({
+                    url:
+                        "http://localhost:6080/arcgis/rest/services//SA_Regions/MapServer?f=jsapi",
+                        popupTemplate: templateReg
+
+                });
+                map.add(featureLayerReg);
+
+                var templatePro = {
+                    title: "Provinces Name: {provinces}" 
+                   
+                }
+
+                const featureLayerPro = new FeatureLayer({
+                    url:
+                        "http://localhost:6080/arcgis/rest/services//Riyadh_Provinces22/MapServer?f=jsapi",
+                        popupTemplate: templatePro
+
+                });
+                map.add(featureLayerPro);
+
+                var templateRoa = {
+                    title: "{highway}" 
+                   
+                }
+
+                const featureLayerRoa = new FeatureLayer({
+                    url:
+                        "http://localhost:6080/arcgis/rest/services//Riyadh_Roads2/MapServer?f=jsapi",
+                        popupTemplate: templateRoa
+
+                });
+                map.add(featureLayerRoa);
+
+                let homeWidget = new Home({
+                    view: view
+                });
+
+                // adds the home widget to the top left corner of the MapView
+                view.ui.add(homeWidget, "top-left");
+
+                let layerList = new LayerList({
+                    view: view
+                });
+                // Adds widget below other elements in the top left corner of the view
+                view.ui.add(layerList, {
+                    position: "top-left"
+                });
+
+                var search = new Search({
+          view: view,
+          allPlaceholder: 'Search for Regions or Provinces...',
+          sources: [
+            {
+              layer: featureLayerReg,
+              searchFields: ["PROV_NAME1"],
+              displayField: "PROV_NAME1",
+              exactMatch: false,
+              outFields: ['*'],
+              name: 'Regions',
+              placeholder: 'Search for Regions ...'
+            }, {
+              layer: featureLayerPro,
+              searchFields: ["provinces"],
+              displayField: "provinces",
+              exactMatch: false,
+              outFields: ['*'],
+              name: 'Provinces',
+              placeholder: 'Search for Provinces ...'
+            }
+          ]
+        });
+
+        view.ui.add(search, 'top-right');
+
+                let measurementWidgetDistance = new DistanceMeasurement2D({
+                    view: view
+                });
+                view.ui.add(measurementWidgetDistance, "top-right");
+
+                
+
+
+
+            });
+    </script>
+
+</head>
+
+<body>
+    <div id="viewDiv"></div>
+</body>
+
+</html>
